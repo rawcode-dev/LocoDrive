@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.locodrive.ui.UserManagementController"
+           styleClass="step-root">
+
+    <VBox alignment="TOP_CENTER" spacing="0" maxWidth="860" styleClass="step-card">
+
+        <!-- Header -->
+        <VBox styleClass="step-header" spacing="6">
+            <Label text="Step 3 of 4" styleClass="step-counter"/>
+            <Label text="User Accounts" styleClass="step-title"/>
+            <Label text="Create user accounts. At least one Admin is required. Guest folders don't need accounts."
+                   styleClass="step-subtitle" wrapText="true"/>
+        </VBox>
+
+        <!-- Body: two-column split -->
+        <HBox styleClass="step-body" spacing="24" VBox.vgrow="ALWAYS">
+
+            <!-- LEFT: User Table -->
+            <VBox HBox.hgrow="ALWAYS" spacing="10" minWidth="320">
+                <Label text="Existing Users" styleClass="section-label"/>
+
+                <!-- Table toolbar -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="✕ Remove" styleClass="btn-danger, btn-sm" onAction="#onRemoveSelected"/>
+                    <Button text="⊘ Toggle Enable" styleClass="btn-ghost, btn-sm" onAction="#onToggleDisable"/>
+                </HBox>
+
+                <TableView fx:id="userTable" VBox.vgrow="ALWAYS" styleClass="data-table">
+                    <columns>
+                        <TableColumn fx:id="usernameCol" text="Username" prefWidth="140"/>
+                        <TableColumn fx:id="roleCol"     text="Role"     prefWidth="80"/>
+                        <TableColumn fx:id="statusCol"   text="Status"   prefWidth="100"/>
+                    </columns>
+                </TableView>
+
+                <Label fx:id="statusLabel" text="" styleClass="status-label" wrapText="true"/>
+            </VBox>
+
+            <!-- RIGHT: Add User Form -->
+            <VBox fx:id="addUserForm" HBox.hgrow="SOMETIMES" spacing="14"
+                  minWidth="280" styleClass="form-card">
+                <Label text="Add New User" styleClass="section-label"/>
+
+                <!-- Username -->
+                <VBox spacing="5">
+                    <Label text="Username" styleClass="field-label"/>
+                    <TextField fx:id="usernameField" styleClass="field-input"
+                               promptText="e.g. john_doe"/>
+                </VBox>
+
+                <!-- Password -->
+                <VBox spacing="5">
+                    <Label text="Password" styleClass="field-label"/>
+                    <PasswordField fx:id="passwordField" styleClass="field-input"
+                                  promptText="Enter password"/>
+                    <Label fx:id="strengthLabel" text="" styleClass="strength-label"/>
+                </VBox>
+
+                <!-- Confirm Password -->
+                <VBox spacing="5">
+                    <Label text="Confirm Password" styleClass="field-label"/>
+                    <PasswordField fx:id="confirmPasswordField" styleClass="field-input"
+                                  promptText="Confirm password"/>
+                </VBox>
+
+                <!-- Role -->
+                <VBox spacing="5">
+                    <Label text="Role" styleClass="field-label"/>
+                    <ComboBox fx:id="roleCombo" styleClass="field-combo" maxWidth="Infinity"/>
+                </VBox>
+
+                <!-- Form status -->
+                <Label fx:id="formStatusLabel" text="" styleClass="status-label" wrapText="true"/>
+
+                <!-- Add button -->
+                <Button text="+ Add User" styleClass="btn-primary" maxWidth="Infinity"
+                        onAction="#onAddUser"/>
+
+                <!-- Role explanations -->
+                <VBox styleClass="info-banner" spacing="4">
+                    <Label text="Admin — Full control, can access all folders.
+User — Can access login-required folders.
+Guest folders — Always public, no account needed."
+                           styleClass="info-banner-text" wrapText="true"/>
+                </VBox>
+            </VBox>
+
+        </HBox>
+
+        <!-- Navigation -->
+        <HBox styleClass="step-nav" alignment="CENTER_RIGHT" spacing="12">
+            <Button text="← Back" styleClass="btn-ghost" onAction="#onBack"/>
+            <Button text="Next →" styleClass="btn-primary" onAction="#onNext"/>
+        </HBox>
+
+    </VBox>
+</StackPane>

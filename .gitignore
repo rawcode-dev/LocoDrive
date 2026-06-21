@@ -1,0 +1,27 @@
+# Maven build output
+target/
+dependency-reduced-pom.xml
+
+# IDE and Project Settings
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS temp files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Local server configurations or runtime database files
+config.json
+*.db

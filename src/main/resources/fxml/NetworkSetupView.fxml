@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.locodrive.ui.NetworkSetupController"
+           styleClass="step-root">
+
+    <VBox alignment="TOP_CENTER" spacing="0" maxWidth="620" styleClass="step-card">
+
+        <!-- Header -->
+        <VBox styleClass="step-header" spacing="6">
+            <Label text="Step 1 of 4" styleClass="step-counter"/>
+            <Label text="Network Setup" styleClass="step-title"/>
+            <Label text="Select which network address to host the file server on."
+                   styleClass="step-subtitle" wrapText="true"/>
+        </VBox>
+
+        <!-- Form Body -->
+        <VBox styleClass="step-body" spacing="20">
+
+            <!-- IP Address -->
+            <VBox spacing="8">
+                <Label text="Network IP Address" styleClass="field-label"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="ipCombo" styleClass="field-combo" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                              promptText="Select your LAN IP address..."/>
+                    <Button text="↻ Refresh" styleClass="btn-ghost, btn-sm"
+                            onAction="#onRefreshIPs" prefWidth="100"/>
+                </HBox>
+                <Label text="This is your computer's local network IP. Other devices use this to connect."
+                       styleClass="field-hint" wrapText="true"/>
+            </VBox>
+
+            <!-- Port -->
+            <VBox spacing="8">
+                <Label text="Server Port" styleClass="field-label"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="portField" styleClass="field-input" prefWidth="140"
+                               promptText="e.g. 8080"/>
+                    <Label fx:id="portStatusIcon" styleClass="port-status" text=""/>
+                </HBox>
+                <Label text="Default is 8080. Use any port from 1024–65535. Must not be in use."
+                       styleClass="field-hint" wrapText="true"/>
+            </VBox>
+
+            <!-- Warning box -->
+            <VBox styleClass="warning-banner" spacing="4">
+                <Label fx:id="warningLabel" wrapText="true" styleClass="warning-banner-text"/>
+            </VBox>
+
+            <!-- Status label -->
+            <Label fx:id="statusLabel" text="" styleClass="status-label" wrapText="true"/>
+
+        </VBox>
+
+        <!-- Navigation -->
+        <HBox styleClass="step-nav" alignment="CENTER_RIGHT" spacing="12">
+            <Button text="← Back" styleClass="btn-ghost" onAction="#onBack"/>
+            <Button text="Next →" styleClass="btn-primary" onAction="#onNext"/>
+        </HBox>
+
+    </VBox>
+</StackPane>

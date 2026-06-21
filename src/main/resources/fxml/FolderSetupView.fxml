@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.locodrive.ui.FolderSetupController"
+           styleClass="step-root">
+
+    <VBox alignment="TOP_CENTER" spacing="0" maxWidth="780" styleClass="step-card">
+
+        <!-- Header -->
+        <VBox styleClass="step-header" spacing="6">
+            <Label text="Step 2 of 4" styleClass="step-counter"/>
+            <Label text="Shared Folders" styleClass="step-title"/>
+            <Label text="Choose which folders to share on your local network. You can add multiple folders."
+                   styleClass="step-subtitle" wrapText="true"/>
+        </VBox>
+
+        <!-- Body -->
+        <VBox styleClass="step-body" spacing="16" VBox.vgrow="ALWAYS">
+
+            <!-- Toolbar -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="+ Add Folder" styleClass="btn-primary, btn-sm"
+                        onAction="#onAddFolder"/>
+                <Button text="✕ Remove Selected" styleClass="btn-danger, btn-sm"
+                        onAction="#onRemoveSelected"/>
+                <Label fx:id="statusLabel" text="" styleClass="status-label" HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <!-- Table -->
+            <TableView fx:id="folderTable" VBox.vgrow="ALWAYS" styleClass="data-table">
+                <columns>
+                    <TableColumn fx:id="aliasCol" text="Display Name" prefWidth="160"/>
+                    <TableColumn fx:id="pathCol" text="Folder Path" prefWidth="280"/>
+                    <TableColumn fx:id="guestCol" text="Public (No Login)" prefWidth="140"/>
+                    <TableColumn fx:id="statusCol" text="Status" prefWidth="120"/>
+                </columns>
+            </TableView>
+
+            <!-- Guest access info -->
+            <VBox styleClass="info-banner" spacing="4">
+                <Label text="💡 Guest Access: folders marked 'Public' can be browsed without a password.
+All other folders require users to log in first." styleClass="info-banner-text" wrapText="true"/>
+            </VBox>
+
+        </VBox>
+
+        <!-- Navigation -->
+        <HBox styleClass="step-nav" alignment="CENTER_RIGHT" spacing="12">
+            <Button text="← Back" styleClass="btn-ghost" onAction="#onBack"/>
+            <Button text="Next →" styleClass="btn-primary" onAction="#onNext"/>
+        </HBox>
+
+    </VBox>
+</StackPane>
