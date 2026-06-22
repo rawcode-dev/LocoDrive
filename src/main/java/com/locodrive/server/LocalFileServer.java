@@ -45,9 +45,13 @@ public class LocalFileServer {
         FileHandler fileHandler = new FileHandler(config, sessionStore, this::logAccess);
         httpServer.createContext("/browse", fileHandler);
 
-        // ── Route: API for dashboard ───────────────────────────────────────────
+        // ── Route: API for dashboard and Tauri UI ───────────────────────────────────
         ApiHandler apiHandler = new ApiHandler(this);
-        httpServer.createContext("/api", apiHandler);
+        httpServer.createContext("/api/health",   apiHandler);
+        httpServer.createContext("/api/status",   apiHandler);
+        httpServer.createContext("/api/log",      apiHandler);
+        httpServer.createContext("/api/config",   apiHandler);
+        httpServer.createContext("/api/networks", apiHandler);
 
         // ── Route: Root redirect ───────────────────────────────────────────────
         httpServer.createContext("/", exchange -> {

@@ -6,45 +6,24 @@
 
     <groupId>com.locodrive</groupId>
     <artifactId>locodrive</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
     <name>LocoDrive</name>
-    <description>A cross-platform local network file sharing server with a beautiful GUI</description>
+    <description>A cross-platform local network file sharing server — Tauri + Java backend</description>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javafx.version>21</javafx.version>
     </properties>
 
     <dependencies>
-        <!-- JavaFX Controls -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-        <!-- JavaFX FXML -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-        <!-- JavaFX Swing bridge (for SwingFXUtils and SystemTray) -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-
         <!-- ZXing QR Code Core -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
             <version>3.5.3</version>
         </dependency>
-        <!-- ZXing JavaSE (BufferedImage support) -->
+        <!-- ZXing JavaSE (BufferedImage support for QR generation) -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
@@ -61,34 +40,12 @@
 
     <build>
         <plugins>
-            <!-- JavaFX Maven Plugin — run with: mvn javafx:run -->
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <configuration>
-                    <mainClass>com.locodrive.Launcher</mainClass>
-                    <jpackageName>LocoDriveServer</jpackageName>
-                    <jpackageAppVersion>1.0.0</jpackageAppVersion>
-                    <jpackageType>installer</jpackageType>
-                    <options>
-                        <!-- macOS requires -XstartOnFirstThread for AWT+JavaFX interop -->
-                        <option>-Dapple.awt.UIElement=false</option>
-                        <option>-Djavafx.macos.interop=true</option>
-                        <option>--add-opens=java.desktop/sun.awt=ALL-UNNAMED</option>
-                        <option>--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</option>
-                        <option>--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</option>
-                    </options>
-                </configuration>
-            </plugin>
-
             <!-- Compiler plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <!-- Use release flag instead of source/target to set system modules path -->
                     <release>17</release>
                     <compilerArgs>
                         <arg>-Xlint:unchecked</arg>
@@ -96,8 +53,7 @@
                 </configuration>
             </plugin>
 
-
-            <!-- Shade plugin — creates a fat JAR for development testing -->
+            <!-- Headless fat-JAR (default build) — used by Tauri as sidecar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -107,9 +63,10 @@
                         <phase>package</phase>
                         <goals><goal>shade</goal></goals>
                         <configuration>
+                            <finalName>locodrive-server</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.locodrive.Launcher</mainClass>
+                                    <mainClass>com.locodrive.ServerMain</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>
@@ -128,4 +85,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

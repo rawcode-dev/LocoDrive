@@ -1,13 +1,11 @@
-name: Build Native Installers
+name: Build Tauri Installers
 
 on:
   push:
     branches: [ "main", "master" ]
     tags:
-      - 'v*' # Trigger release when pushing tags like v1.0.0
-  pull_request:
-    branches: [ "main", "master" ]
-  workflow_dispatch: # Allows you to manually trigger the build from GitHub UI
+      - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,67 +13,75 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
-            jpackage-type: exe
+            platform: windows
           - os: ubuntu-latest
-            jpackage-type: deb
+            platform: linux
           - os: macos-latest
-            jpackage-type: pkg
+            platform: macos
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-    - name: Build Fat JAR with Maven
-      # This step creates an OS-specific fat JAR because the OpenJFX Maven dependencies 
-      # automatically pull the correct binaries for the current runner's OS.
-      run: mvn clean package -DskipTests
-
-    - name: Package Native Installer with jpackage
-      run: |
-        # Create a clean input directory to avoid packaging unnecessary files from target/
-        mkdir jpackage-input
-        cp target/locodrive-1.0.0.jar jpackage-input/
+      - name: Build headless Java server JAR
+        run: mvn -Pheadless clean package -DskipTests
         
-        jpackage --type ${{ matrix.jpackage-type }} \
-                 --name LocoDriveServer \
-                 --input jpackage-input/ \
-                 --main-jar locodrive-1.0.0.jar \
-                 --main-class com.locodrive.Launcher \
-                 --app-version 1.0.0 \
-                 --java-options "-Dapple.awt.UIElement=false" \
-                 --java-options "-Djavafx.macos.interop=true" \
-                 --java-options "--add-opens=java.desktop/sun.awt=ALL-UNNAMED" \
-                 --java-options "--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED" \
-                 --java-options "--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED" \
-                 --dest dist/
-      shell: bash
+      - name: Prepare sidecar binary
+        shell: bash
+        run: |
+          mkdir -p src-tauri/binaries
+          # Tauri sidecar naming convention: binary-{arch}-{os}
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            cp target/locodrive-server.jar "src-tauri/binaries/locodrive-server-x86_64-pc-windows-msvc"
+          elif [ "${{ matrix.platform }}" = "linux" ]; then
+            cp target/locodrive-server.jar "src-tauri/binaries/locodrive-server-x86_64-unknown-linux-gnu"
+          elif [ "${{ matrix.platform }}" = "macos" ]; then
+            ARCH=$(uname -m)
+            if [ "$ARCH" = "arm64" ]; then
+              cp target/locodrive-server.jar "src-tauri/binaries/locodrive-server-aarch64-apple-darwin"
+            else
+              cp target/locodrive-server.jar "src-tauri/binaries/locodrive-server-x86_64-apple-darwin"
+            fi
+          fi
 
-    - name: Upload Installer Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: LocoDriveServer-${{ runner.os }}-Installer
-        path: dist/*.*
+      - name: Install Linux dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
 
-    - name: Publish to GitHub Release
-      uses: ncipollo/release-action@v1
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      with:
-        tag: latest
-        name: "Latest Build"
-        allowUpdates: true
-        replacesArtifacts: true
-        makeLatest: true
-        artifacts: "dist/*.*"
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Build Tauri App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}
+          releaseName: 'LocoDrive ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || "Latest Build" }}'
+          releaseBody: 'Automated build. Download the installer for your OS below.'
+          releaseDraft: false
+          prerelease: false

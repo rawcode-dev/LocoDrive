@@ -1,199 +1,226 @@
 # 🗄️ LocoDrive
 
-**A cross-platform local network file sharing server with a beautiful GUI — no technical knowledge required.**
+**A cross-platform local network file sharing server with a beautiful desktop GUI.**
+Share files on your Wi-Fi — no cloud, no internet, no technical knowledge required.
 
-> Works on **Windows** and **Linux**. Built with **Java 17 + JavaFX 21**.
+> Built with **Tauri 2.0** (Rust + WebView) + **Java 17** HTTP backend.
 
-## 📥 Download latest release
+## 📥 Download
 
-- [🪟 **Download for Windows** (.exe)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/LocoDriveServer-1.0.0.exe)
-- [🐧 **Download for Linux** (.deb)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/locodriveserver_1.0.0-1_amd64.deb)
-- [🍎 **Download for macOS** (.pkg)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/LocoDriveServer-1.0.0.pkg)
+| Platform | Download |
+|---|---|
+| 🪟 Windows | [LocoDrive Setup.exe](https://github.com/rawcode-dev/LocoDrive/releases/latest) |
+| 🐧 Linux | [locodrive_amd64.deb](https://github.com/rawcode-dev/LocoDrive/releases/latest) |
+| 🍎 macOS | [LocoDrive.dmg](https://github.com/rawcode-dev/LocoDrive/releases/latest) |
+
+> Files are automatically built and published to the [Releases](https://github.com/rawcode-dev/LocoDrive/releases) page by GitHub Actions on every push.
 
 ---
 
-## Features
+## ✨ Features
 
 | Feature | Details |
 |---|---|
-| 🧙 6-Step Wizard | Guided setup: Network → Folders → Users → Review → Dashboard |
+| 🧙 Setup Wizard | 5-step guided setup: Network → Folders → Users → Review → Dashboard |
 | 📁 File Browser | Browse and download shared folders from any device on LAN |
-| 👤 User Accounts | Create Admin/User accounts with SHA-256 hashed passwords |
-| 🔓 Guest Access | Per-folder: mark folders as public (no login) or private (login required) |
+| 👤 User Accounts | Admin/User accounts with SHA-256 hashed passwords |
+| 🔓 Guest Access | Per-folder: public (no login) or private (login required) |
 | 🔒 Session Auth | Cookie-based sessions — no browser password caching |
 | 📱 QR Code | Scan from phone to instantly open the file browser |
 | 📊 Live Dashboard | Real-time access log, uptime timer, session count |
 | 💾 Config Persistence | Settings saved to `~/.locodrive/config.json` |
 | 🖥️ System Tray | Minimize to tray — server keeps running in background |
-| 🌐 LAN Only | Server binds to your local network IP — NOT internet-accessible |
+| 🌐 LAN Only | Binds to local network IP — NOT internet-accessible |
 
 ---
 
-## Quick Start
+## 🏗️ Architecture
+
+```
+LocoDrive Desktop App (~5 MB)
+├── Tauri Shell (Rust)       — window, system tray, lifecycle management
+├── WebView UI               — HTML + CSS + JS wizard and dashboard
+└── Java Server (sidecar)   — embedded HTTP server (locodrive-server.jar)
+    ├── /browse/            — file browser for LAN devices
+    ├── /login, /logout     — session-based authentication
+    └── /api/*              — REST API consumed by the WebView UI
+```
+
+The Tauri shell starts the Java HTTP server as a background sidecar process. The WebView UI talks to the Java API to manage configuration and show the live dashboard. LAN devices (phones, PCs) access the file browser directly via a web browser — no app needed on their side.
+
+---
+
+## 🚀 Getting Started (Development)
 
 ### Prerequisites
 
-- **Java 17+** installed (JDK, not JRE)
-- **Maven 3.6+** installed
+| Tool | Version | Install |
+|---|---|---|
+| **Java JDK** | 17+ | [adoptium.net](https://adoptium.net) |
+| **Maven** | 3.8+ | [maven.apache.org](https://maven.apache.org) |
+| **Rust** | stable | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
+| **Tauri CLI** | 2.x | `cargo install tauri-cli` |
 
-### Run (Development)
+> **Linux only:** also install WebKit: `sudo apt install libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev`
+
+---
+
+### Step 1 — Clone the repository
 
 ```bash
-# Navigate to project folder
-cd "Project localServer"
-
-# Run the app
-mvn javafx:run
+git clone https://github.com/rawcode-dev/LocoDrive.git
+cd LocoDrive
 ```
 
-### Build Native Installer (Production)
+### Step 2 — Build the Java server JAR
 
-Java 17's `jpackage` tool allows you to bundle a lightweight Java Runtime Environment (JRE) with the application, meaning users don't need to install Java themselves.
+```bash
+mvn clean package
+```
 
-**Note:** You must build the installer on the target operating system (build `.deb` on Linux, `.exe` on Windows). First, ensure you have compiled the fat JAR by running `mvn clean package`.
+This produces `target/locodrive-server.jar` — the headless HTTP server sidecar.
 
-#### 🐧 Build for Linux / Raspberry Pi OS (`.deb`)
-1. Ensure the packaging tool `fakeroot` is installed:
-   ```bash
-   sudo apt install fakeroot -y
-   ```
-2. Build the `.deb` package using the JDK's `jpackage` tool:
-   ```bash
-   jpackage --type deb --name LocoDrive --input target/ --main-jar locodrive-1.0.0.jar --main-class com.locodrive.Launcher --app-version 1.0.0
-   ```
-3. Find the output `.deb` file in your project folder. Install it using:
-   ```bash
-   sudo apt install ./locodrive_1.0.0-1_arm64.deb
-   ```
+### Step 3 — Run in Tauri dev mode
 
-#### 🪟 Build for Windows (`.exe`)
-1. Ensure you have the **WiX Toolset v3** installed (required by `jpackage` to make `.exe` installers). You can install it quickly using PowerShell/Command Prompt:
-   ```cmd
-   winget install WiX.WiX
-   ```
-2. Build the `.exe` package using the JDK's `jpackage` tool:
-   ```cmd
-   jpackage --type exe --name LocoDrive --input target/ --main-jar locodrive-1.0.0.jar --main-class com.locodrive.Launcher --app-version 1.0.0 --win-shortcut --win-menu
-   ```
-3. The `.exe` installer will be generated in your project folder. Double-click it to install!
+```bash
+cargo tauri dev
+```
+
+This compiles the Rust shell, places the JAR as a sidecar, and opens the app window. Hot-reload is active for the `ui/` frontend files.
 
 ---
 
-## How to Use
+## 🔨 Building a Production Installer
 
-### Step 1 — Welcome
-Click **"Get Started"** to begin the wizard, or **"Load Saved Configuration"** if you've run the app before.
+Run this on **each target OS** (or let GitHub Actions do it for you):
 
-### Step 2 — Network Setup
-- Select your **local IP address** from the dropdown (auto-detected from your network)
-- Set the **port** (default 8080)
-- Port must be free (not used by another app)
+```bash
+# Build Java JAR first
+mvn clean package
 
-### Step 3 — Shared Folders
-- Click **"+ Add Folder"** to select folders from your computer
+# Then build the Tauri installer
+cargo tauri build
+```
+
+Output locations:
+- **Windows:** `src-tauri/target/release/bundle/nsis/LocoDrive Setup.exe`
+- **Linux:** `src-tauri/target/release/bundle/deb/locodrive_amd64.deb`
+- **macOS:** `src-tauri/target/release/bundle/dmg/LocoDrive.dmg`
+
+---
+
+## ⚙️ CI/CD — Automated GitHub Releases
+
+The [.github/workflows/build-installers.yml](.github/workflows/build-installers.yml) workflow runs on every push to `main` or a version tag (`v*`). It:
+
+1. Builds the headless Java JAR on each runner
+2. Builds Tauri native installers in parallel for Windows, Linux, and macOS
+3. Publishes all three installers to a GitHub Release automatically
+
+To trigger a versioned release:
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+---
+
+## 🔧 How to Use
+
+### 1 — Welcome
+Launch LocoDrive. Click **"Get Started"** to run the setup wizard, or **"Load Saved Config"** if you have run the app before.
+
+### 2 — Network Setup
+- Select your **local IP address** from the dropdown (auto-detected)
+- Set the **port** (default `8080`)
+
+### 3 — Shared Folders
+- Click **"+ Add Folder"** to pick folders from your computer
 - Each folder gets a display name (editable)
-- Toggle **"Public (No Login)"** per folder to allow guest access
-- ⚠️ Public folders are accessible to anyone on your Wi-Fi without a password
+- Toggle **"Public"** per folder to allow guest access without login
 
-### Step 4 — User Accounts
-- Create at least **one Admin** user
-- Set username and password (6+ characters)
-- Password strength indicator shows WEAK / FAIR / STRONG
-- User accounts needed to access non-public folders
+### 4 — User Accounts
+- Create at least **one Admin** user (required to launch)
+- Set username and password (min. 6 characters)
 
-### Step 5 — Security Review
-- Review all your settings before launching
-- Security warnings are shown if guest access is enabled
+### 5 — Security Review
+- Review all settings. Security warnings are shown if guest access is enabled.
 - Click **"🚀 Launch Server"** to start
 
-### Step 6 — Dashboard
-- See your server URL and QR code
-- Scan QR code with phone to open the file browser
-- Click **"🌐 Open in Browser"** to open on this computer
-- Watch the **Real-Time Access Log** for who's browsing what
-- Click **"⏹ Stop Server"** to stop; **"▶ Start Server"** to restart
+### 6 — Dashboard
+- See your server **URL** and copy it with one click
+- Click **"🌐 Open in Browser"** to open the file browser on this PC
+- Watch the **Live Access Log** for connections
+- Minimize to system tray — server keeps running
+- Right-click the tray icon → **Exit** to stop the server
 
 ---
 
-## Security Notes
+## 🔒 Security Notes
 
-- ✅ **LAN Only** — The server binds to your local network IP. It is NOT accessible from the internet.
-- ✅ **Passwords** are stored as SHA-256 + salt hashes. Never stored in plain text.
-- ✅ **Path traversal protection** — Users cannot access files outside the shared folders.
-- ✅ **Session cookies** — Secure HttpOnly cookie-based auth. No browser password caching.
-- ⚠️ **HTTP only** — Connection is not encrypted (no TLS). Do not use on untrusted public Wi-Fi.
-- ⚠️ **Guest folders** — Public folders expose files to all devices on your network without login.
-
----
-
-## File Structure
-
-```
-Project localServer/
-├── pom.xml                     # Maven build
-└── src/
-    └── main/
-        ├── java/com/locodrive/
-        │   ├── App.java                   # JavaFX Application (system tray)
-        │   ├── AppContext.java            # Singleton shared state
-        │   ├── Launcher.java              # Entry point
-        │   ├── model/
-        │   │   ├── User.java              # User account model
-        │   │   ├── SharedFolder.java      # Shared folder model
-        │   │   └── ServerConfig.java      # Master config
-        │   ├── server/
-        │   │   ├── LocalFileServer.java   # Embedded HTTP server
-        │   │   ├── FileHandler.java       # File browsing + download
-        │   │   ├── AuthHandler.java       # Login/logout (HTML form)
-        │   │   ├── ApiHandler.java        # REST API for dashboard
-        │   │   └── SessionStore.java      # In-memory session store
-        │   ├── ui/
-        │   │   ├── MainController.java    # Wizard navigation + animations
-        │   │   ├── WelcomeController.java
-        │   │   ├── NetworkSetupController.java
-        │   │   ├── FolderSetupController.java
-        │   │   ├── UserManagementController.java
-        │   │   ├── SecurityReviewController.java
-        │   │   └── DashboardController.java
-        │   └── util/
-        │       ├── NetworkDetector.java   # Auto-detect LAN IPs
-        │       ├── QRCodeGenerator.java   # ZXing QR code
-        │       ├── ConfigManager.java     # JSON config persistence
-        │       └── PasswordUtils.java     # SHA-256 + salt hashing
-        └── resources/
-            ├── fxml/                      # One FXML per wizard step
-            └── css/app.css               # Dark mode design system
-```
-
----
-
-## Config File Location
-
-Settings are auto-saved to:
-- **Windows:** `C:\Users\<YourName>\.locodrive\config.json`
-- **Linux:** `~/.locodrive/config.json`
-
----
-
-## Troubleshooting
+| | |
+|---|---|
+| ✅ | **LAN only** — binds to local network IP. Not internet-accessible. |
+| ✅ | **Passwords** stored as SHA-256 + salt hashes. Never plain text. |
+| ✅ | **Path traversal protection** — users cannot access files outside shared folders. |
+| ✅ | **Session cookies** — HttpOnly cookie-based auth. |
+| ⚠️ | **HTTP only** — traffic is not encrypted. Do not use on untrusted public Wi-Fi. |
+| ⚠️ | **Public folders** — expose files to all devices on the network without login. |
 
 ### Installation Security Warnings
 
-Because this is a free, open-source application and the installers are not "digitally signed" with expensive corporate certificates, your operating system might show a warning when you try to install or run it. **This is completely normal.**
+This app is open-source and unsigned (no paid Apple/Microsoft certificate). OS warnings are normal:
 
-- **🪟 Windows (SmartScreen):** If you see a blue screen saying "Windows protected your PC", click **More info** and then click **Run anyway**.
-- **🍎 macOS (Gatekeeper):** Newer macOS versions are very strict about apps downloaded from the internet without a paid Apple Developer signature. If double-clicking or Right-Click -> Open doesn't work:
-  1. Try to open the `.pkg` file (it will be blocked).
-  2. Open your Mac's **System Settings** and go to **Privacy & Security**.
-  3. Scroll down to the Security section. You will see a message saying the app was blocked. Click the **Open Anyway** button next to it.
-  4. *(Advanced)* Alternatively, open Terminal and remove the quarantine flag: `xattr -d com.apple.quarantine ~/Downloads/LocoDriveServer-1.0.0.pkg`
-- **🐧 Linux:** Depending on your distribution, you can usually install the `.deb` file by opening a terminal in your downloads folder and running `sudo apt install ./locodriveserver_1.0.0-1_amd64.deb`.
+- **🪟 Windows SmartScreen:** Click **More info** → **Run anyway**
+- **🍎 macOS Gatekeeper:** After a failed open, go to **System Settings → Privacy & Security** → click **Open Anyway**. Or run in Terminal: `xattr -d com.apple.quarantine ~/Downloads/LocoDrive.dmg`
+- **🐧 Linux:** `sudo apt install ./locodrive_amd64.deb`
 
 ---
 
+## 📁 Project Structure
+
+```
+LocoDrive/
+├── pom.xml                         # Maven build — produces locodrive-server.jar
+├── src/
+│   └── main/java/com/locodrive/
+│       ├── ServerMain.java         # 🚀 Headless entry point (no JavaFX)
+│       ├── AppContext.java         # Singleton shared state
+│       ├── model/                  # ServerConfig, User, SharedFolder
+│       ├── server/                 # HTTP server (LocalFileServer, handlers)
+│       └── util/                   # NetworkDetector, ConfigManager, QRCodeGenerator
+├── ui/                             # Web frontend (HTML/CSS/JS)
+│   ├── index.html
+│   ├── styles/app.css              # Dark-mode design system
+│   └── js/
+│       ├── api.js                  # REST API client
+│       ├── router.js               # SPA router
+│       └── pages/                  # welcome, network, folders, users, review, dashboard
+└── src-tauri/                      # Tauri shell (Rust)
+    ├── Cargo.toml
+    ├── tauri.conf.json
+    ├── capabilities/default.json
+    └── src/
+        ├── main.rs
+        └── lib.rs                  # Sidecar mgmt, system tray, window
+```
+
+---
+
+## 📋 Config File
+
+Settings are auto-saved to:
+- **Windows:** `C:\Users\<Name>\.locodrive\config.json`
+- **Linux / macOS:** `~/.locodrive/config.json`
+
+---
+
+## 🛠️ Troubleshooting
+
 | Issue | Solution |
 |---|---|
-| "Port already in use" | Change port to another number (e.g. 8081, 9000) |
-| "No IP addresses found" | Click ↻ Refresh. Make sure you're connected to a network. |
-| Can't access from phone | Make sure phone is on same Wi-Fi network |
-| App closes when I click X | It minimizes to system tray — right-click tray icon to exit |
+| "Port already in use" | Change port in Network Setup (e.g. 8081, 9000) |
+| "No IP addresses found" | Make sure you are connected to a Wi-Fi or LAN network |
+| Can't access from phone | Ensure phone is on the same Wi-Fi network |
+| App closes when I click X | It minimizes to the system tray. Right-click tray icon → Exit to stop. |
+| Java not found on startup | Install JDK 17+ from [adoptium.net](https://adoptium.net) |

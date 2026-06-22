@@ -1,8 +1,12 @@
-# Maven build output
+# ── Maven ────────────────────────────────────────────────────────────────────
 target/
 dependency-reduced-pom.xml
 
-# IDE and Project Settings
+# ── Rust / Tauri ─────────────────────────────────────────────────────────────
+src-tauri/target/
+src-tauri/binaries/
+
+# ── IDE / Editor ─────────────────────────────────────────────────────────────
 .idea/
 *.iml
 .classpath
@@ -15,13 +19,11 @@ dependency-reduced-pom.xml
 *.sln
 *.sw?
 
-# OS temp files
+# ── OS ───────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 
-# Log files
+# ── Runtime / Logs ───────────────────────────────────────────────────────────
 *.log
-
-# Local server configurations or runtime database files
 config.json
 *.db

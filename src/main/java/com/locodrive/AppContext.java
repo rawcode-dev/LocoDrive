@@ -2,7 +2,6 @@ package com.locodrive;
 
 import com.locodrive.model.ServerConfig;
 import com.locodrive.server.LocalFileServer;
-import javafx.stage.Stage;
 
 /**
  * Application-wide singleton context.
@@ -12,7 +11,6 @@ public class AppContext {
 
     private static AppContext instance;
 
-    private Stage primaryStage;
     private ServerConfig config = new ServerConfig();
     private LocalFileServer server;
 
@@ -24,10 +22,6 @@ public class AppContext {
         }
         return instance;
     }
-
-    // ── Stage ─────────────────────────────────────────────────────────────────
-    public Stage getPrimaryStage() { return primaryStage; }
-    public void setPrimaryStage(Stage s) { this.primaryStage = s; }
 
     // ── Config ────────────────────────────────────────────────────────────────
     public ServerConfig getConfig() { return config; }
