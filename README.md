@@ -4,6 +4,14 @@
 
 > Works on **Windows** and **Linux**. Built with **Java 17 + JavaFX 21**.
 
+## 📥 Download latest release
+
+*(Note: Once you push this code to GitHub and create a Release tag like `v1.0.0`, replace `YOUR_GITHUB_USERNAME` and `YOUR_REPO_NAME` below with your actual GitHub username and repository name so these links work).*
+
+- [🪟 **Download for Windows** (.exe)](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/releases/latest/download/LocoDriveServer-1.0.0.exe)
+- [🐧 **Download for Linux** (.deb)](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/releases/latest/download/locodriveserver_1.0.0-1_amd64.deb)
+- [🍎 **Download for macOS** (.pkg)](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/releases/latest/download/LocoDriveServer-1.0.0.pkg)
+
 ---
 
 ## Features
