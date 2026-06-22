@@ -182,7 +182,11 @@ Settings are auto-saved to:
 Because this is a free, open-source application and the installers are not "digitally signed" with expensive corporate certificates, your operating system might show a warning when you try to install or run it. **This is completely normal.**
 
 - **🪟 Windows (SmartScreen):** If you see a blue screen saying "Windows protected your PC", click **More info** and then click **Run anyway**.
-- **🍎 macOS (Gatekeeper):** If you see a warning that the app "cannot be opened because the developer cannot be verified", do not double-click it. Instead, **Right-click** (or Control-click) the downloaded `.pkg` or `.app` file, select **Open** from the menu, and then click the **Open** button in the warning dialog.
+- **🍎 macOS (Gatekeeper):** Newer macOS versions are very strict about apps downloaded from the internet without a paid Apple Developer signature. If double-clicking or Right-Click -> Open doesn't work:
+  1. Try to open the `.pkg` file (it will be blocked).
+  2. Open your Mac's **System Settings** and go to **Privacy & Security**.
+  3. Scroll down to the Security section. You will see a message saying the app was blocked. Click the **Open Anyway** button next to it.
+  4. *(Advanced)* Alternatively, open Terminal and remove the quarantine flag: `xattr -d com.apple.quarantine ~/Downloads/LocoDriveServer-1.0.0.pkg`
 - **🐧 Linux:** Depending on your distribution, you can usually install the `.deb` file by opening a terminal in your downloads folder and running `sudo apt install ./locodriveserver_1.0.0-1_amd64.deb`.
 
 ---

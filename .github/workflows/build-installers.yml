@@ -66,9 +66,13 @@ jobs:
         path: dist/*.*
 
     - name: Publish to GitHub Release
-      uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
+      uses: ncipollo/release-action@v1
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       with:
-        files: dist/*.*
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        tag: latest
+        name: "Latest Build"
+        allowUpdates: true
+        replacesArtifacts: true
+        makeLatest: true
+        artifacts: "dist/*.*"
+        token: ${{ secrets.GITHUB_TOKEN }}
