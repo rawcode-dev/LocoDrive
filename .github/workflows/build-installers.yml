@@ -80,8 +80,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}
-          releaseName: 'LocoDrive ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || "Latest Build" }}'
+          tagName: "${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}"
+          releaseName: "LocoDrive ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'Latest Build' }}"
           releaseBody: 'Automated build. Download the installer for your OS below.'
           releaseDraft: false
           prerelease: false
