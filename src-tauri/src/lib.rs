@@ -147,8 +147,11 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
                     }
                 }
                 "open_browser" => {
-                    let state: tauri::State<Arc<Mutex<ServerState>>> = handle.state();
-                    if let Some(url) = state.lock().unwrap().url.clone() {
+                    let url = {
+                        let state: tauri::State<Arc<Mutex<ServerState>>> = handle.state();
+                        state.lock().unwrap().url.clone()
+                    };
+                    if let Some(url) = url {
                         let _ = open::that(format!("{}/browse/", url));
                     }
                 }
