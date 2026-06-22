@@ -3,6 +3,7 @@ use tauri_plugin_shell::ShellExt;
 use tauri_plugin_shell::process::CommandEvent;
 use std::sync::{Arc, Mutex};
 use tokio::time::{sleep, Duration};
+use std::io::{BufRead, BufReader};
 
 /// Shared state: holds the server URL once it is ready
 struct ServerState {
@@ -54,53 +55,68 @@ pub fn run() {
                 return Ok(());
             }
 
-            // Spawn the Java server sidecar
-            let sidecar_cmd = app_handle.shell()
-                .sidecar("locodrive-server")
-                .expect("locodrive-server sidecar not found — check tauri.conf.json");
+            // Spawn the Java server JAR
+            let resource_dir = app_handle.path().resource_dir().expect("failed to get resource dir");
+            let jar_path = resource_dir.join("resources").join("locodrive-server.jar");
 
-            let (mut rx, _child) = sidecar_cmd.spawn().expect("Failed to spawn Java server sidecar");
+            let mut child = std::process::Command::new("java")
+                .arg("-jar")
+                .arg(&jar_path)
+                .stdout(std::process::Stdio::piped())
+                .stderr(std::process::Stdio::piped())
+                .spawn()
+                .expect("Failed to spawn Java server process");
+
+            let stdout = child.stdout.take().expect("Failed to get stdout");
+            let stderr = child.stderr.take().expect("Failed to get stderr");
+            
+            let state_arc_clone = Arc::clone(&state_arc);
+            let handle_clone = app_handle.clone();
 
             // Listen for stdout from the Java server
-            tauri::async_runtime::spawn(async move {
-                while let Some(event) = rx.recv().await {
-                    match event {
-                        CommandEvent::Stdout(line) => {
-                            let text = String::from_utf8_lossy(&line).to_string();
-                            println!("[Java Server] {}", text);
-                            // Java server prints "READY http://ip:port" when ready
-                            if let Some(url) = text.strip_prefix("READY ") {
-                                let server_url = url.trim().to_string();
-                                let mut st = state_arc.lock().unwrap();
-                                st.url = Some(server_url.clone());
-                                drop(st);
+            std::thread::spawn(move || {
+                let reader = BufReader::new(stdout);
+                for line in reader.lines() {
+                    if let Ok(text) = line {
+                        println!("[Java Server] {}", text);
+                        // Java server prints "READY http://ip:port" when ready
+                        if let Some(url) = text.strip_prefix("READY ") {
+                            let server_url = url.trim().to_string();
+                            let mut st = state_arc_clone.lock().unwrap();
+                            st.url = Some(server_url.clone());
+                            drop(st);
 
-                                // Poll until HTTP server is actually accepting connections
-                                let url_clone = server_url.clone();
-                                let handle_clone = app_handle.clone();
-                                tauri::async_runtime::spawn(async move {
-                                    let ready = wait_for_server(&url_clone, 30).await;
-                                    if ready {
-                                        // Open the main window pointing to the Tauri UI
-                                        let _ = tauri::WebviewWindowBuilder::new(
-                                            &handle_clone,
-                                            "main",
-                                            tauri::WebviewUrl::App("index.html".into())
-                                        )
-                                        .title("LocoDrive")
-                                        .inner_size(1100.0, 700.0)
-                                        .min_inner_size(900.0, 600.0)
-                                        .build();
-                                    } else {
-                                        eprintln!("Java server failed to respond in time");
-                                    }
-                                });
-                            }
+                            // Poll until HTTP server is actually accepting connections
+                            let url_clone = server_url.clone();
+                            let h_clone = handle_clone.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let ready = wait_for_server(&url_clone, 30).await;
+                                if ready {
+                                    // Open the main window pointing to the Tauri UI
+                                    let _ = tauri::WebviewWindowBuilder::new(
+                                        &h_clone,
+                                        "main",
+                                        tauri::WebviewUrl::App("index.html".into())
+                                    )
+                                    .title("LocoDrive")
+                                    .inner_size(1100.0, 700.0)
+                                    .min_inner_size(900.0, 600.0)
+                                    .build();
+                                } else {
+                                    eprintln!("Java server failed to respond in time");
+                                }
+                            });
                         }
-                        CommandEvent::Stderr(line) => {
-                            eprintln!("[Java Server ERR] {}", String::from_utf8_lossy(&line));
-                        }
-                        _ => {}
+                    }
+                }
+            });
+
+            // Read stderr for debugging
+            std::thread::spawn(move || {
+                let reader = BufReader::new(stderr);
+                for line in reader.lines() {
+                    if let Ok(text) = line {
+                        eprintln!("[Java Server ERR] {}", text);
                     }
                 }
             });

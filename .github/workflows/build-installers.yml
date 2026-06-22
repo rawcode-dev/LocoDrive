@@ -22,6 +22,10 @@ jobs:
             platform: linux
           - os: macos-latest
             platform: macos
+            arch: aarch64
+          - os: macos-13
+            platform: macos
+            arch: x86_64
 
     runs-on: ${{ matrix.os }}
 
@@ -39,23 +43,11 @@ jobs:
       - name: Build headless Java server JAR
         run: mvn clean package -DskipTests
         
-      - name: Prepare sidecar binary
+      - name: Prepare sidecar resource
         shell: bash
         run: |
-          mkdir -p src-tauri/binaries
-          # Tauri sidecar naming convention: binary-{arch}-{os}
-          if [ "${{ matrix.platform }}" = "windows" ]; then
-            cp target/locodrive-server.jar "src-tauri/binaries/locodrive-server-x86_64-pc-windows-msvc"
-          elif [ "${{ matrix.platform }}" = "linux" ]; then
-            cp target/locodrive-server.jar "src-tauri/binaries/locodrive-server-x86_64-unknown-linux-gnu"
-          elif [ "${{ matrix.platform }}" = "macos" ]; then
-            ARCH=$(uname -m)
-            if [ "$ARCH" = "arm64" ]; then
-              cp target/locodrive-server.jar "src-tauri/binaries/locodrive-server-aarch64-apple-darwin"
-            else
-              cp target/locodrive-server.jar "src-tauri/binaries/locodrive-server-x86_64-apple-darwin"
-            fi
-          fi
+          mkdir -p src-tauri/resources
+          cp target/locodrive-server.jar src-tauri/resources/locodrive-server.jar
 
       - name: Install Linux dependencies
         if: matrix.platform == 'linux'

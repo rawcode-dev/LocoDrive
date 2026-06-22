@@ -26,10 +26,10 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": [
-      "binaries/locodrive-server"
+    "externalBin": [],
+    "resources": [
+      "resources/locodrive-server.jar"
     ],
-    "resources": {},
     "windows": {
       "wix": {},
       "nsis": {}
