@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocoDrive</title>
+  <link rel="stylesheet" href="styles/app.css" />
+</head>
+<body>
+  <!-- Step indicator bar -->
+  <div id="step-bar" class="step-indicator-bar" style="display:none;">
+    <div class="step-dots">
+      <span class="step-dot" data-step="0"></span>
+      <span class="step-line"></span>
+      <span class="step-dot" data-step="1"></span>
+      <span class="step-line"></span>
+      <span class="step-dot" data-step="2"></span>
+      <span class="step-line"></span>
+      <span class="step-dot" data-step="3"></span>
+      <span class="step-line"></span>
+      <span class="step-dot" data-step="4"></span>
+    </div>
+  </div>
+
+  <!-- Page container -->
+  <div id="app"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/pages/welcome.js"></script>
+  <script src="js/pages/network.js"></script>
+  <script src="js/pages/folders.js"></script>
+  <script src="js/pages/users.js"></script>
+  <script src="js/pages/review.js"></script>
+  <script src="js/pages/dashboard.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
