@@ -42,10 +42,34 @@ mvn javafx:run
 
 ### Build Native Installer (Production)
 
-```bash
-# Creates .exe installer on Windows, .deb on Linux
-mvn javafx:jpackage
-```
+Java 17's `jpackage` tool allows you to bundle a lightweight Java Runtime Environment (JRE) with the application, meaning users don't need to install Java themselves.
+
+**Note:** You must build the installer on the target operating system (build `.deb` on Linux, `.exe` on Windows). First, ensure you have compiled the fat JAR by running `mvn clean package`.
+
+#### 🐧 Build for Linux / Raspberry Pi OS (`.deb`)
+1. Ensure the packaging tool `fakeroot` is installed:
+   ```bash
+   sudo apt install fakeroot -y
+   ```
+2. Build the `.deb` package using the JDK's `jpackage` tool:
+   ```bash
+   jpackage --type deb --name LocoDrive --input target/ --main-jar locodrive-1.0.0.jar --main-class com.locodrive.Launcher --app-version 1.0.0
+   ```
+3. Find the output `.deb` file in your project folder. Install it using:
+   ```bash
+   sudo apt install ./locodrive_1.0.0-1_arm64.deb
+   ```
+
+#### 🪟 Build for Windows (`.exe`)
+1. Ensure you have the **WiX Toolset v3** installed (required by `jpackage` to make `.exe` installers). You can install it quickly using PowerShell/Command Prompt:
+   ```cmd
+   winget install WiX.WiX
+   ```
+2. Build the `.exe` package using the JDK's `jpackage` tool:
+   ```cmd
+   jpackage --type exe --name LocoDrive --input target/ --main-jar locodrive-1.0.0.jar --main-class com.locodrive.Launcher --app-version 1.0.0 --win-shortcut --win-menu
+   ```
+3. The `.exe` installer will be generated in your project folder. Double-click it to install!
 
 ---
 
