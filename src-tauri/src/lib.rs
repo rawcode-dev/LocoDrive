@@ -1,13 +1,12 @@
 use tauri::Manager;
-use tauri_plugin_shell::ShellExt;
-use tauri_plugin_shell::process::CommandEvent;
 use std::sync::{Arc, Mutex};
 use tokio::time::{sleep, Duration};
 use std::io::{BufRead, BufReader};
 
-/// Shared state: holds the server URL once it is ready
+/// Shared state: holds the server URL once it is ready and the child process
 struct ServerState {
     url: Option<String>,
+    child: Option<std::process::Child>,
 }
 
 /// Wait for the Java server to respond on /api/health
@@ -34,31 +33,95 @@ fn get_server_url(state: tauri::State<Arc<Mutex<ServerState>>>) -> Option<String
     state.lock().unwrap().url.clone()
 }
 
+/// Locate the bundled locodrive-server.jar
+/// On macOS, Tauri places resources at: <App>.app/Contents/Resources/
+/// On Windows/Linux: next to the binary.
+fn find_jar(app_handle: &tauri::AppHandle) -> std::path::PathBuf {
+    let resource_dir = app_handle
+        .path()
+        .resource_dir()
+        .expect("Failed to resolve resource directory");
+
+    // Tauri 2.x places bundled resources directly in the resource dir
+    let direct = resource_dir.join("locodrive-server.jar");
+    if direct.exists() {
+        return direct;
+    }
+
+    // Fallback: inside a "resources/" subdirectory (some platforms/versions)
+    let sub = resource_dir.join("resources").join("locodrive-server.jar");
+    if sub.exists() {
+        return sub;
+    }
+
+    // Last resort: beside the binary (useful for `cargo tauri dev`)
+    let exe = std::env::current_exe().expect("Failed to get exe path");
+    let beside = exe
+        .parent()
+        .expect("Failed to get exe directory")
+        .join("resources")
+        .join("locodrive-server.jar");
+    if beside.exists() {
+        return beside;
+    }
+
+    // Return the direct path even if it doesn't exist (will fail with a clear message)
+    direct
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
-        .manage(Arc::new(Mutex::new(ServerState { url: None })))
+        .manage(Arc::new(Mutex::new(ServerState { url: None, child: None })))
         .setup(|app| {
             let app_handle = app.handle().clone();
             let state: tauri::State<Arc<Mutex<ServerState>>> = app.state();
             let state_arc = Arc::clone(&state);
 
             // Check if Java is installed
-            let java_check = std::process::Command::new("java").arg("-version").output();
-            if java_check.is_err() || !java_check.unwrap().status.success() {
-                tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("error.html".into()))
-                    .title("LocoDrive — Java Required")
-                    .inner_size(600.0, 400.0)
-                    .resizable(false)
-                    .build()?;
+            let java_check = std::process::Command::new("java")
+                .arg("-version")
+                .stderr(std::process::Stdio::null())
+                .output();
+
+            let java_available = match java_check {
+                Ok(output) => output.status.success(),
+                Err(_) => false,
+            };
+
+            if !java_available {
+                let _ = tauri::WebviewWindowBuilder::new(
+                    app,
+                    "main",
+                    tauri::WebviewUrl::App("error.html".into())
+                )
+                .title("LocoDrive — Java Required")
+                .inner_size(600.0, 400.0)
+                .resizable(false)
+                .build()?;
                 return Ok(());
             }
 
-            // Spawn the Java server JAR
-            let resource_dir = app_handle.path().resource_dir().expect("failed to get resource dir");
-            let jar_path = resource_dir.join("resources").join("locodrive-server.jar");
+            // Locate the bundled JAR
+            let jar_path = find_jar(&app_handle);
+            eprintln!("[LocoDrive] JAR path: {:?}", jar_path);
 
+            if !jar_path.exists() {
+                eprintln!("[LocoDrive] ERROR: JAR not found at {:?}", jar_path);
+                // Show error in window
+                let _ = tauri::WebviewWindowBuilder::new(
+                    app,
+                    "main",
+                    tauri::WebviewUrl::App("error.html".into())
+                )
+                .title("LocoDrive — Server Error")
+                .inner_size(600.0, 400.0)
+                .build()?;
+                return Ok(());
+            }
+
+            // Spawn java -jar <path>
             let mut child = std::process::Command::new("java")
                 .arg("-jar")
                 .arg(&jar_path)
@@ -69,11 +132,17 @@ pub fn run() {
 
             let stdout = child.stdout.take().expect("Failed to get stdout");
             let stderr = child.stderr.take().expect("Failed to get stderr");
-            
+
+            // Store the child process so we can kill it on quit
+            {
+                let mut st = state_arc.lock().unwrap();
+                st.child = Some(child);
+            }
+
             let state_arc_clone = Arc::clone(&state_arc);
             let handle_clone = app_handle.clone();
 
-            // Listen for stdout from the Java server
+            // Listen for stdout from the Java server in a background thread
             std::thread::spawn(move || {
                 let reader = BufReader::new(stdout);
                 for line in reader.lines() {
@@ -82,17 +151,18 @@ pub fn run() {
                         // Java server prints "READY http://ip:port" when ready
                         if let Some(url) = text.strip_prefix("READY ") {
                             let server_url = url.trim().to_string();
-                            let mut st = state_arc_clone.lock().unwrap();
-                            st.url = Some(server_url.clone());
-                            drop(st);
+                            {
+                                let mut st = state_arc_clone.lock().unwrap();
+                                st.url = Some(server_url.clone());
+                            }
 
-                            // Poll until HTTP server is actually accepting connections
+                            // Poll until HTTP is actually responding, then open window
                             let url_clone = server_url.clone();
                             let h_clone = handle_clone.clone();
                             tauri::async_runtime::spawn(async move {
                                 let ready = wait_for_server(&url_clone, 30).await;
                                 if ready {
-                                    // Open the main window pointing to the Tauri UI
+                                    eprintln!("[LocoDrive] Server ready at {}", url_clone);
                                     let _ = tauri::WebviewWindowBuilder::new(
                                         &h_clone,
                                         "main",
@@ -101,9 +171,10 @@ pub fn run() {
                                     .title("LocoDrive")
                                     .inner_size(1100.0, 700.0)
                                     .min_inner_size(900.0, 600.0)
+                                    .visible(true)
                                     .build();
                                 } else {
-                                    eprintln!("Java server failed to respond in time");
+                                    eprintln!("[LocoDrive] Java server did not respond in 30s");
                                 }
                             });
                         }
@@ -111,7 +182,7 @@ pub fn run() {
                 }
             });
 
-            // Read stderr for debugging
+            // Collect stderr for debugging
             std::thread::spawn(move || {
                 let reader = BufReader::new(stderr);
                 for line in reader.lines() {
@@ -131,7 +202,7 @@ pub fn run() {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 // Hide to tray instead of closing
                 api.prevent_close();
-                window.hide().unwrap();
+                let _ = window.hide();
             }
         })
         .run(tauri::generate_context!())
@@ -156,6 +227,7 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
         .on_menu_event(move |_app, event| {
             match event.id().as_ref() {
                 "show" => {
+                    // If window exists, show it; if not, it may still be loading
                     if let Some(win) = handle.get_webview_window("main") {
                         let _ = win.show();
                         let _ = win.set_focus();
@@ -169,6 +241,12 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
                     }
                 }
                 "quit" => {
+                    // Kill the Java child process before exiting
+                    let state: tauri::State<Arc<Mutex<ServerState>>> = handle.state();
+                    let mut st = state.lock().unwrap();
+                    if let Some(child) = st.child.as_mut() {
+                        let _ = child.kill();
+                    }
                     handle.exit(0);
                 }
                 _ => {}
