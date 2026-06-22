@@ -63,7 +63,6 @@ pub fn run() {
 
             // Listen for stdout from the Java server
             tauri::async_runtime::spawn(async move {
-                let mut server_url = String::new();
                 while let Some(event) = rx.recv().await {
                     match event {
                         CommandEvent::Stdout(line) => {
@@ -71,7 +70,7 @@ pub fn run() {
                             println!("[Java Server] {}", text);
                             // Java server prints "READY http://ip:port" when ready
                             if let Some(url) = text.strip_prefix("READY ") {
-                                server_url = url.trim().to_string();
+                                let server_url = url.trim().to_string();
                                 let mut st = state_arc.lock().unwrap();
                                 st.url = Some(server_url.clone());
                                 drop(st);
@@ -147,10 +146,8 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
                     }
                 }
                 "open_browser" => {
-                    let url = {
-                        let state: tauri::State<Arc<Mutex<ServerState>>> = handle.state();
-                        state.lock().unwrap().url.clone()
-                    };
+                    let state: tauri::State<Arc<Mutex<ServerState>>> = handle.state();
+                    let url = state.lock().unwrap().url.clone();
                     if let Some(url) = url {
                         let _ = open::that(format!("{}/browse/", url));
                     }
