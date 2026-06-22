@@ -6,11 +6,9 @@
 
 ## 📥 Download latest release
 
-*(Note: Once you push this code to GitHub and create a Release tag like `v1.0.0`, replace `YOUR_GITHUB_USERNAME` and `YOUR_REPO_NAME` below with your actual GitHub username and repository name so these links work).*
-
-- [🪟 **Download for Windows** (.exe)](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/releases/latest/download/LocoDriveServer-1.0.0.exe)
-- [🐧 **Download for Linux** (.deb)](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/releases/latest/download/locodriveserver_1.0.0-1_amd64.deb)
-- [🍎 **Download for macOS** (.pkg)](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/releases/latest/download/LocoDriveServer-1.0.0.pkg)
+- [🪟 **Download for Windows** (.exe)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/LocoDriveServer-1.0.0.exe)
+- [🐧 **Download for Linux** (.deb)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/locodriveserver_1.0.0-1_amd64.deb)
+- [🍎 **Download for macOS** (.pkg)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/LocoDriveServer-1.0.0.pkg)
 
 ---
 
@@ -178,6 +176,16 @@ Settings are auto-saved to:
 ---
 
 ## Troubleshooting
+
+### Installation Security Warnings
+
+Because this is a free, open-source application and the installers are not "digitally signed" with expensive corporate certificates, your operating system might show a warning when you try to install or run it. **This is completely normal.**
+
+- **🪟 Windows (SmartScreen):** If you see a blue screen saying "Windows protected your PC", click **More info** and then click **Run anyway**.
+- **🍎 macOS (Gatekeeper):** If you see a warning that the app "cannot be opened because the developer cannot be verified", do not double-click it. Instead, **Right-click** (or Control-click) the downloaded `.pkg` or `.app` file, select **Open** from the menu, and then click the **Open** button in the warning dialog.
+- **🐧 Linux:** Depending on your distribution, you can usually install the `.deb` file by opening a terminal in your downloads folder and running `sudo apt install ./locodriveserver_1.0.0-1_amd64.deb`.
+
+---
 
 | Issue | Solution |
 |---|---|
