@@ -37,7 +37,7 @@ jobs:
           cache: maven
 
       - name: Build headless Java server JAR
-        run: mvn -Pheadless clean package -DskipTests
+        run: mvn clean package -DskipTests
         
       - name: Prepare sidecar binary
         shell: bash

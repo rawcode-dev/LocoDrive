@@ -130,8 +130,7 @@ public class ApiHandler implements HttpHandler {
                     u.setUsername(uo.optString("username"));
                     // If a plain password provided, hash it; otherwise reuse stored hash
                     if (uo.has("password") && !uo.optString("password").isBlank()) {
-                        String salt = PasswordUtils.generateSalt();
-                        u.setHashedPassword(PasswordUtils.hashPassword(uo.getString("password"), salt));
+                        u.setHashedPassword(PasswordUtils.hash(uo.getString("password")));
                     } else {
                         u.setHashedPassword(uo.optString("hashedPassword", ""));
                     }
