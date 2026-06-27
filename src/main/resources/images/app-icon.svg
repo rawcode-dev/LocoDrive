@@ -1,0 +1,27 @@
+<svg width="1024" height="1024" viewBox="112 112 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" rx="225" fill="url(#bg-grad)"/>
+  
+  <path d="M220 320 C220 286.863 246.863 260 280 260 H 420 C 440 260 458 270 470 286 L 520 350 H 744 C 777.137 350 804 376.863 804 410 V 704 C 804 737.137 777.137 764 744 764 H 280 C 246.863 764 220 737.137 220 704 V 320 Z" 
+        stroke="url(#folder-grad)" stroke-width="48" stroke-linejoin="round" />
+        
+  <path d="M 420 640 A 210 210 0 0 1 630 430" stroke="url(#wifi-grad)" stroke-width="48" stroke-linecap="round"/>
+  <path d="M 525 640 A 105 105 0 0 1 630 535" stroke="url(#wifi-grad)" stroke-width="48" stroke-linecap="round"/>
+  <circle cx="630" cy="640" r="34" fill="#10B981" />
+
+  <defs>
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E1E2E"/>
+      <stop offset="1" stop-color="#11111B"/>
+    </linearGradient>
+    
+    <linearGradient id="folder-grad" x1="220" y1="260" x2="804" y2="764" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00D2FF"/>
+      <stop offset="1" stop-color="#3A7BD5"/>
+    </linearGradient>
+    
+    <linearGradient id="wifi-grad" x1="420" y1="430" x2="630" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#34D399"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+</svg>
