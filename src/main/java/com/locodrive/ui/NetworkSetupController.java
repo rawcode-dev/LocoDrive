@@ -32,6 +32,9 @@ public class NetworkSetupController extends BaseStepController implements Initia
     public void initialize(URL url, ResourceBundle rb) {
         portField.setText("8080");
 
+        // Make the dropdown editable so users can type any custom IP
+        ipCombo.setEditable(true);
+
         // Real-time port validation
         portField.textProperty().addListener((obs, old, val) -> checkPort());
 
@@ -41,13 +44,26 @@ public class NetworkSetupController extends BaseStepController implements Initia
 
     @Override
     public void onEnter() {
+        ServerConfig config = AppContext.getInstance().getConfig();
+        String savedIp = config.getBindAddress();
+
         // Refresh network interfaces each time we enter this step
         List<String> ips = NetworkDetector.getLanAddresses();
-        ipCombo.setItems(FXCollections.observableArrayList(ips));
-        if (!ips.isEmpty()) {
-            String best = NetworkDetector.getBestAddress();
-            ipCombo.setValue(best);
+        
+        // Inject the saved IP into the list if it's not detected automatically
+        if (savedIp != null && !savedIp.isBlank() && !ips.contains(savedIp)) {
+            ips.add(0, savedIp);
         }
+
+        ipCombo.setItems(FXCollections.observableArrayList(ips));
+
+        // Pre-select the saved IP if one exists, otherwise fallback to the best detected IP
+        if (savedIp != null && !savedIp.isBlank()) {
+            ipCombo.setValue(savedIp);
+        } else if (!ips.isEmpty()) {
+            ipCombo.setValue(NetworkDetector.getBestAddress());
+        }
+
         checkPort();
         updateWarning();
     }
