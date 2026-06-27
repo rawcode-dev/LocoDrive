@@ -30,11 +30,13 @@ public class LocalFileServer {
 
     /**
      * Starts the server. Binds to config.bindAddress:config.port.
+     * 
      * @throws IOException if the port is in use or binding fails.
      */
     public void start() throws IOException {
         InetSocketAddress addr = new InetSocketAddress(config.getBindAddress(), config.getPort());
         httpServer = HttpServer.create(addr, 50);
+        httpServer.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(32));
 
         // ── Route: Login page ──────────────────────────────────────────────────
         AuthHandler authHandler = new AuthHandler(config, sessionStore, this::logAccess);
@@ -44,6 +46,8 @@ public class LocalFileServer {
         // ── Route: File browser / download ─────────────────────────────────────
         FileHandler fileHandler = new FileHandler(config, sessionStore, this::logAccess);
         httpServer.createContext("/browse", fileHandler);
+        httpServer.createContext("/download", fileHandler);
+        httpServer.createContext("/assets", fileHandler);
 
         // ── Route: API for dashboard ───────────────────────────────────────────
         ApiHandler apiHandler = new ApiHandler(this);
@@ -84,11 +88,15 @@ public class LocalFileServer {
         String ts = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
         String line = "[" + ts + "] " + entry;
         accessLog.add(line);
-        if (accessLog.size() > 500) accessLog.remove(0); // cap log
-        if (logListener != null) logListener.accept(line);
+        if (accessLog.size() > 500)
+            accessLog.remove(0); // cap log
+        if (logListener != null)
+            logListener.accept(line);
     }
 
-    public List<String> getAccessLog() { return List.copyOf(accessLog); }
+    public List<String> getAccessLog() {
+        return List.copyOf(accessLog);
+    }
 
     public void setLogListener(Consumer<String> listener) {
         this.logListener = listener;
@@ -98,7 +106,11 @@ public class LocalFileServer {
         return sessionStore.activeCount();
     }
 
-    public ServerConfig getConfig() { return config; }
+    public ServerConfig getConfig() {
+        return config;
+    }
 
-    public SessionStore getSessionStore() { return sessionStore; }
+    public SessionStore getSessionStore() {
+        return sessionStore;
+    }
 }

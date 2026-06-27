@@ -16,14 +16,19 @@ public class SharedFolder {
 
     public SharedFolder() {
         this.guestAccessible = false;
-        this.readOnly = true;
     }
 
     public SharedFolder(String alias, String path, boolean guestAccessible) {
         this.alias = alias;
         this.path = path;
         this.guestAccessible = guestAccessible;
-        this.readOnly = true;
+    }
+
+    public SharedFolder(String alias, String path, boolean guestAccessible, boolean readOnly) {
+        this.alias = alias;
+        this.path = path;
+        this.guestAccessible = guestAccessible;
+        this.readOnly = readOnly;
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

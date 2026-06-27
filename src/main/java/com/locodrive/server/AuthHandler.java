@@ -140,34 +140,47 @@ public class AuthHandler implements HttpHandler {
         <html lang="en">
         <head>
           <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
           <title>LocoDrive — Sign In</title>
           <style>
             *{margin:0;padding:0;box-sizing:border-box}
-            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,
+                 'Helvetica Neue',Arial,sans-serif;
                  background:#0F1117;color:#E8EAF6;min-height:100vh;
-                 display:flex;align-items:center;justify-content:center;}
+                 display:flex;align-items:center;justify-content:center;
+                 padding:20px}
             .card{background:#1A1D2E;border:1px solid rgba(255,255,255,.08);
-                  border-radius:16px;padding:48px 40px;width:100%;max-width:420px;
-                  box-shadow:0 24px 64px rgba(0,0,0,.5);}
-            .logo{text-align:center;margin-bottom:32px}
-            .logo-icon{font-size:48px;margin-bottom:12px}
-            h1{font-size:24px;font-weight:700;color:#fff;text-align:center}
-            .subtitle{text-align:center;color:#9EA3B8;font-size:14px;margin-top:6px}
-            .form-group{margin-top:24px}
-            label{display:block;font-size:13px;font-weight:500;color:#9EA3B8;margin-bottom:8px}
+                  border-radius:16px;padding:40px 32px;width:100%;max-width:420px;
+                  box-shadow:0 24px 64px rgba(0,0,0,.5)}
+            .logo{text-align:center;margin-bottom:28px}
+            .logo-icon{font-size:44px;margin-bottom:10px}
+            h1{font-size:22px;font-weight:700;color:#fff;text-align:center}
+            .subtitle{text-align:center;color:#9EA3B8;font-size:13px;margin-top:5px}
+            .form-group{margin-top:20px}
+            label{display:block;font-size:13px;font-weight:500;color:#9EA3B8;margin-bottom:7px}
             input{width:100%;padding:12px 16px;background:rgba(255,255,255,.06);
                   border:1px solid rgba(255,255,255,.1);border-radius:10px;
-                  color:#E8EAF6;font-size:15px;outline:none;transition:border .2s}
-            input:focus{border-color:#4F9CF9}
+                  color:#E8EAF6;font-size:15px;outline:none;transition:border .2s;
+                  -webkit-appearance:none}
+            input:focus{border-color:#4F9CF9;box-shadow:0 0 0 3px rgba(79,156,249,.12)}
             .btn{width:100%;padding:14px;background:#4F9CF9;border:none;border-radius:10px;
                  color:#fff;font-size:15px;font-weight:600;cursor:pointer;
-                 margin-top:28px;transition:background .2s}
+                 margin-top:24px;transition:background .2s}
             .btn:hover{background:#6BAFFF}
-            .error{background:rgba(244,67,54,.15);border:1px solid rgba(244,67,54,.3);
+            .btn:active{transform:scale(.98)}
+            .error{background:rgba(244,67,54,.12);border:1px solid rgba(244,67,54,.25);
                    border-radius:8px;padding:12px 16px;font-size:14px;color:#FF8A80;
-                   margin-top:20px;text-align:center}
-            .badge{text-align:center;margin-top:24px;font-size:12px;color:#9EA3B8}
+                   margin-top:18px;text-align:center}
+            .badge{text-align:center;margin-top:20px;font-size:11px;color:#9EA3B8}
+
+            @media(max-width:480px){
+              body{padding:16px;align-items:flex-start;padding-top:60px}
+              .card{padding:28px 20px;border-radius:14px}
+              .logo-icon{font-size:36px}
+              h1{font-size:20px}
+              input{font-size:16px;padding:11px 14px}
+              .btn{padding:13px;font-size:15px}
+            }
           </style>
         </head>
         <body>

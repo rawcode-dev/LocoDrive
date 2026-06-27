@@ -32,10 +32,11 @@
             <!-- Table -->
             <TableView fx:id="folderTable" VBox.vgrow="ALWAYS" styleClass="data-table">
                 <columns>
-                    <TableColumn fx:id="aliasCol" text="Display Name" prefWidth="160"/>
-                    <TableColumn fx:id="pathCol" text="Folder Path" prefWidth="280"/>
-                    <TableColumn fx:id="guestCol" text="Public (No Login)" prefWidth="140"/>
-                    <TableColumn fx:id="statusCol" text="Status" prefWidth="120"/>
+                    <TableColumn fx:id="aliasCol" text="Display Name" prefWidth="140"/>
+                    <TableColumn fx:id="pathCol" text="Folder Path" prefWidth="240"/>
+                    <TableColumn fx:id="guestCol" text="Public (No Login)" prefWidth="130"/>
+                    <TableColumn fx:id="uploadCol" text="Allow Uploads" prefWidth="120"/>
+                    <TableColumn fx:id="statusCol" text="Status" prefWidth="100"/>
                 </columns>
             </TableView>
 

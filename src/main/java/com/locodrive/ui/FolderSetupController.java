@@ -28,6 +28,7 @@ public class FolderSetupController extends BaseStepController implements Initial
     @FXML private TableColumn<SharedFolder, String> aliasCol;
     @FXML private TableColumn<SharedFolder, String> pathCol;
     @FXML private TableColumn<SharedFolder, Boolean> guestCol;
+    @FXML private TableColumn<SharedFolder, Boolean> uploadCol;
     @FXML private TableColumn<SharedFolder, String> statusCol;
     @FXML private Label statusLabel;
     @FXML private TextField aliasField;
@@ -88,6 +89,19 @@ public class FolderSetupController extends BaseStepController implements Initial
         });
         guestCol.setCellFactory(CheckBoxTableCell.forTableColumn(guestCol));
         guestCol.setEditable(true);
+
+        // Upload (allow uploads) column — inverted readOnly
+        uploadCol.setCellValueFactory(data -> {
+            SharedFolder folder = data.getValue();
+            SimpleBooleanProperty prop = new SimpleBooleanProperty(!folder.isReadOnly());
+            prop.addListener((obs, old, val) -> {
+                folder.setReadOnly(!val);
+                folderTable.refresh();
+            });
+            return prop;
+        });
+        uploadCol.setCellFactory(CheckBoxTableCell.forTableColumn(uploadCol));
+        uploadCol.setEditable(true);
 
         // Status column
         statusCol.setCellValueFactory(data -> {

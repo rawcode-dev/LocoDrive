@@ -2,7 +2,7 @@
 
 **A cross-platform local network file sharing server with a beautiful GUI — no technical knowledge required.**
 
-> Works on **Windows** and **Linux**. Built with **Java 17 + JavaFX 21**.
+> Works on **Windows**, **macOS** and **Linux**. Built with **Java 17 + JavaFX 21**.
 
 ## 📥 Download latest release
 
@@ -17,7 +17,9 @@
 | Feature | Details |
 |---|---|
 | 🧙 6-Step Wizard | Guided setup: Network → Folders → Users → Review → Dashboard |
-| 📁 File Browser | Browse and download shared folders from any device on LAN |
+| 📁 File Browser | Browse, download, and upload files from any device on LAN |
+| ⬆️ File Upload | Drag & drop or tap to upload files from any device (per-folder toggle) |
+| 📱 Responsive UI | Web interface adapts to laptops, tablets, and phones |
 | 👤 User Accounts | Create Admin/User accounts with SHA-256 hashed passwords |
 | 🔓 Guest Access | Per-folder: mark folders as public (no login) or private (login required) |
 | 🔒 Session Auth | Cookie-based sessions — no browser password caching |
@@ -93,7 +95,9 @@ Click **"Get Started"** to begin the wizard, or **"Load Saved Configuration"** i
 - Click **"+ Add Folder"** to select folders from your computer
 - Each folder gets a display name (editable)
 - Toggle **"Public (No Login)"** per folder to allow guest access
+- Toggle **"Allow Uploads"** to let logged-in users upload files to that folder
 - ⚠️ Public folders are accessible to anyone on your Wi-Fi without a password
+- ⚠️ Guests can **never** upload, even to upload-enabled folders — only logged-in users can
 
 ### Step 4 — User Accounts
 - Create at least **one Admin** user
@@ -143,7 +147,7 @@ Project localServer/
         │   │   └── ServerConfig.java      # Master config
         │   ├── server/
         │   │   ├── LocalFileServer.java   # Embedded HTTP server
-        │   │   ├── FileHandler.java       # File browsing + download
+        │   │   ├── FileHandler.java       # File browsing, download & upload
         │   │   ├── AuthHandler.java       # Login/logout (HTML form)
         │   │   ├── ApiHandler.java        # REST API for dashboard
         │   │   └── SessionStore.java      # In-memory session store
@@ -171,6 +175,7 @@ Project localServer/
 
 Settings are auto-saved to:
 - **Windows:** `C:\Users\<YourName>\.locodrive\config.json`
+- **macOS:** `~/.locodrive/config.json`
 - **Linux:** `~/.locodrive/config.json`
 
 ---
