@@ -33,6 +33,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         graalvm: '22.1.0.1-Final'
+        jdk: 'java17'
 
     - name: Install Linux Dependencies
       if: runner.os == 'Linux'
