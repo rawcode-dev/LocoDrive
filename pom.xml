@@ -108,6 +108,7 @@
                         <arg>--enable-https</arg>
                     </compilerArgs>
                     <reflectionList>
+                        <list>com.locodrive.App</list>
                         <list>org.json.JSONObject</list>
                         <list>org.json.JSONArray</list>
                         <list>org.json.JSONTokener</list>
