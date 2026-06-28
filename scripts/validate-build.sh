@@ -15,7 +15,14 @@ cat << 'EOF' > ~/.locodrive/config.json
   "bindAddress": "127.0.0.1",
   "port": 8080,
   "guestEnabled": true,
-  "users": [],
+  "users": [
+    {
+      "username": "admin",
+      "hashedPassword": "fake",
+      "role": "ADMIN",
+      "enabled": true
+    }
+  ],
   "sharedFolders": [
     {
       "alias": "TestFolder",
