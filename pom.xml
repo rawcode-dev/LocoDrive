@@ -113,7 +113,7 @@
                                 <argument>--strip-debug</argument>
                                 <argument>--no-man-pages</argument>
                                 <argument>--no-header-files</argument>
-                                <argument>--compress=zip-9</argument>
+                                <argument>--compress=2</argument>
                                 <argument>--output</argument>
                                 <argument>${project.build.directory}/custom-jre</argument>
                             </arguments>
