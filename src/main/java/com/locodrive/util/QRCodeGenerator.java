@@ -3,14 +3,13 @@ package com.locodrive.util;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,24 +35,21 @@ public class QRCodeGenerator {
             QRCodeWriter writer = new QRCodeWriter();
             BitMatrix matrix = writer.encode(url, BarcodeFormat.QR_CODE, size, size, hints);
 
-            // Use dark navy background with accent-blue modules for theming
-            BufferedImage buffered = MatrixToImageWriter.toBufferedImage(matrix);
+            WritableImage image = new WritableImage(size, size);
+            PixelWriter pixelWriter = image.getPixelWriter();
 
-            // Recolor: black → #4F9CF9 (accent), white → #1A1D2E (bg)
-            BufferedImage themed = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
             for (int x = 0; x < size; x++) {
                 for (int y = 0; y < size; y++) {
-                    int rgb = buffered.getRGB(x, y);
-                    // 0xFF000000 = black pixel → module on
-                    if ((rgb & 0xFF) < 128) {
-                        themed.setRGB(x, y, 0xFF4F9CF9); // accent blue
+                    // matrix.get(x,y) returns true if the module is dark
+                    if (matrix.get(x, y)) {
+                        pixelWriter.setArgb(x, y, 0xFF4F9CF9); // accent blue
                     } else {
-                        themed.setRGB(x, y, 0xFF1A1D2E); // dark background
+                        pixelWriter.setArgb(x, y, 0xFF1A1D2E); // dark background
                     }
                 }
             }
 
-            return SwingFXUtils.toFXImage(themed, null);
+            return image;
 
         } catch (WriterException e) {
             System.err.println("QR generation failed: " + e.getMessage());
