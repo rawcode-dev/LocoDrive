@@ -1,37 +1,17 @@
 #!/bin/bash
-# LocoDrive Installer Builder
-# This script builds the project, generates a stripped-down custom JRE,
-# and packages everything into a native OS installer (deb, exe, or dmg).
+# LocoDrive GraalVM Native Installer Builder
+# This script uses the GluonFX plugin to compile your Java application
+# directly into Native Machine Code via GraalVM Ahead-Of-Time compilation.
+# NOTE: You MUST have GraalVM and the native C++ toolchain (MSVC/XCode/GCC) installed!
 
 set -e
 
 echo "=========================================================="
-echo " 1. Building Project & Custom JRE"
+echo " Building Native Machine Code via GraalVM (This takes 5-15 mins!)"
 echo "=========================================================="
-mvn clean package
+mvn clean gluonfx:build gluonfx:package
 
 echo ""
 echo "=========================================================="
-echo " 2. Preparing Files for jpackage"
-echo "=========================================================="
-mkdir -p target/pack
-cp target/locodrive-*.jar target/pack/
-
-echo ""
-echo "=========================================================="
-echo " 3. Generating Native Installer"
-echo "=========================================================="
-# We pass the custom JRE and memory limits to jpackage
-jpackage \
-  --name LocoDrive \
-  --input target/pack/ \
-  --main-jar locodrive-1.0.0.jar \
-  --main-class com.locodrive.Launcher \
-  --runtime-image target/custom-jre \
-  --java-options "-Xmx128M -XX:+UseSerialGC -XX:MaxRAM=256M" \
-  --dest target/dist
-
-echo ""
-echo "=========================================================="
-echo " SUCCESS! Your installer is located in the target/dist/ folder."
+echo " SUCCESS! Your standalone native installer is located in target/gluonfx/"
 echo "=========================================================="

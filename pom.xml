@@ -93,33 +93,19 @@
             </plugin>
 
 
-            <!-- JLink plugin to create a stripped down custom JRE -->
+            <!-- GluonFX Plugin to compile Java directly to Native Machine Code via GraalVM -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>create-custom-jre</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>${java.home}/bin/jlink</executable>
-                            <arguments>
-                                <argument>--add-modules</argument>
-                                <argument>java.base,java.desktop,java.scripting,jdk.httpserver,jdk.jfr,jdk.unsupported,java.xml</argument>
-                                <argument>--strip-debug</argument>
-                                <argument>--no-man-pages</argument>
-                                <argument>--no-header-files</argument>
-                                <argument>--compress=2</argument>
-                                <argument>--output</argument>
-                                <argument>${project.build.directory}/custom-jre</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>com.gluonhq</groupId>
+                <artifactId>gluonfx-maven-plugin</artifactId>
+                <version>1.0.24</version>
+                <configuration>
+                    <mainClass>com.locodrive.Launcher</mainClass>
+                    <reflectionList>
+                        <list>org.json.JSONObject</list>
+                        <list>org.json.JSONArray</list>
+                        <list>org.json.JSONTokener</list>
+                    </reflectionList>
+                </configuration>
             </plugin>
 
             <!-- Shade plugin — creates a fat JAR for development testing -->
