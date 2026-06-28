@@ -5,6 +5,9 @@ on:
   push:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -22,29 +25,28 @@ jobs:
         jdk: 'java17'
 
     - name: Install Dependencies
-      run: sudo apt-get update && sudo apt-get install -y libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libgl1-mesa-dev libgtk-3-dev libpango1.0-dev libxtst-dev xvfb
+      run: sudo apt-get update && sudo apt-get install -y libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libgl1-mesa-dev libgtk-3-dev libpango1.0-dev libxtst-dev
 
     - name: Compile Native Machine Code
-      run: mvn clean gluonfx:build
+      run: mvn -B clean gluonfx:build
 
-    - name: Compress Binary with UPX
-      uses: crazy-max/ghaction-upx@v3
-      with:
-        version: latest
-        files: target/gluonfx/x86_64-linux/gvm/locodrive
-        args: -9
-
-    - name: Build Validation
-      run: ./scripts/validate-build.sh
-      shell: bash
+    - name: Verify Binary Exists
+      run: |
+        BINARY=$(find target/gluonfx -type f -executable ! -name "*.so" ! -name "*.o" ! -name "*.a" | head -n 1)
+        if [ -z "$BINARY" ]; then
+            echo "❌ Native binary not found!"
+            exit 1
+        fi
+        SIZE=$(du -h "$BINARY" | cut -f1)
+        echo "✅ Native binary found: $BINARY ($SIZE)"
 
     - name: Package Installer (DEB)
-      run: mvn gluonfx:package
-      
+      run: mvn -B gluonfx:package
+
     - name: Package Portable (AppImage)
       run: ./scripts/build-appimage.sh
       shell: bash
-      
+
     - name: Copy DEB to dist
       run: |
         mkdir -p dist

@@ -103,15 +103,34 @@
                     <compilerArgs>
                         <arg>-Os</arg>
                         <arg>--no-fallback</arg>
-                        <arg>--strip-debug</arg>
                         <arg>--enable-http</arg>
                         <arg>--enable-https</arg>
                     </compilerArgs>
                     <reflectionList>
+                        <!-- App & Entry Points -->
                         <list>com.locodrive.App</list>
+                        <list>com.locodrive.Launcher</list>
+                        <list>com.locodrive.AppContext</list>
+                        <!-- FXML Controllers (loaded via Class.forName by FXMLLoader) -->
+                        <list>com.locodrive.ui.MainController</list>
+                        <list>com.locodrive.ui.WelcomeController</list>
+                        <list>com.locodrive.ui.NetworkSetupController</list>
+                        <list>com.locodrive.ui.FolderSetupController</list>
+                        <list>com.locodrive.ui.UserManagementController</list>
+                        <list>com.locodrive.ui.SecurityReviewController</list>
+                        <list>com.locodrive.ui.DashboardController</list>
+                        <list>com.locodrive.ui.BaseStepController</list>
+                        <!-- Model classes (used by JSON reflection) -->
+                        <list>com.locodrive.model.ServerConfig</list>
+                        <list>com.locodrive.model.SharedFolder</list>
+                        <list>com.locodrive.model.User</list>
+                        <!-- JSON library -->
                         <list>org.json.JSONObject</list>
                         <list>org.json.JSONArray</list>
                         <list>org.json.JSONTokener</list>
+                        <!-- ZXing QR (uses reflection internally) -->
+                        <list>com.google.zxing.qrcode.QRCodeWriter</list>
+                        <list>com.google.zxing.qrcode.decoder.ErrorCorrectionLevel</list>
                     </reflectionList>
                 </configuration>
             </plugin>

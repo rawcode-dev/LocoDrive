@@ -5,6 +5,9 @@ on:
   push:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -25,17 +28,19 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
 
     - name: Compile Native Machine Code
-      run: mvn clean gluonfx:build
+      run: mvn -B clean gluonfx:build
 
-
-    - name: Build Validation
-      run: ./scripts/validate-build.ps1
-      shell: powershell
-
-    - name: Prepare for Packaging
+    - name: Verify Binary Exists
       run: |
+        $Binary = Get-ChildItem -Path "target\gluonfx" -Recurse -Include "*.exe" | Where-Object { $_.Name -notmatch "java|graal" } | Select-Object -First 1
+        if (-not $Binary) {
+            Write-Error "Native binary not found!"
+            exit 1
+        }
+        $sizeMB = [math]::Round($Binary.Length / 1MB, 2)
+        Write-Host "Native binary found: $($Binary.FullName) ($sizeMB MB)"
         mkdir build
-        Get-ChildItem -Path "target\gluonfx" -Recurse -Filter "*.exe" | Select-Object -First 1 | Copy-Item -Destination "build\locodrive.exe"
+        Copy-Item $Binary.FullName -Destination "build\locodrive.exe"
       shell: powershell
 
     - name: Package Installer (Inno Setup)

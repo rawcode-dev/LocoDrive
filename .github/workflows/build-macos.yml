@@ -5,6 +5,9 @@ on:
   push:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: macos-latest
@@ -22,19 +25,25 @@ jobs:
         jdk: 'java17'
 
     - name: Compile Native Machine Code
-      run: mvn clean gluonfx:build
+      run: mvn -B clean gluonfx:build
 
-    - name: Build Validation
-      run: ./scripts/validate-build.sh
-      shell: bash
+    - name: Verify Binary Exists
+      run: |
+        BINARY=$(find target/gluonfx -type f -perm +111 ! -name "*.dylib" ! -name "*.o" ! -name "*.a" | head -n 1)
+        if [ -z "$BINARY" ]; then
+            echo "❌ Native binary not found!"
+            exit 1
+        fi
+        SIZE=$(du -h "$BINARY" | cut -f1)
+        echo "✅ Native binary found: $BINARY ($SIZE)"
 
     - name: Package Installer (PKG)
-      run: mvn gluonfx:package
+      run: mvn -B gluonfx:package
 
     - name: Copy PKG to dist
       run: |
         mkdir -p dist
-        find target/gluonfx -type f -name "*.pkg" -o -name "*.dmg" -exec cp {} dist/ \;
+        find target/gluonfx -type f \( -name "*.pkg" -o -name "*.dmg" \) -exec cp {} dist/ \;
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4

@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# Find the binary
-BINARY=$(find target/gluonfx -type f -name "locodrive" | head -n 1)
+# Find the binary (case-insensitive, exclude shared libs)
+BINARY=$(find target/gluonfx -type f -executable ! -name "*.so" ! -name "*.o" ! -name "*.a" | head -n 1)
 
 if [ -z "$BINARY" ]; then
     echo "❌ Error: Native binary not found!"
