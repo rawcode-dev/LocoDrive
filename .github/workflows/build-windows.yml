@@ -31,11 +31,17 @@ jobs:
       uses: crazy-max/ghaction-upx@v3
       with:
         version: latest
-        files: target/gluonfx/x86_64-windows/gvm/locodrive.exe
+        files: target/gluonfx/**/*.exe
         args: -9
 
     - name: Build Validation
       run: ./scripts/validate-build.ps1
+      shell: powershell
+
+    - name: Prepare for Packaging
+      run: |
+        mkdir build
+        Get-ChildItem -Path "target\gluonfx" -Recurse -Filter "*.exe" | Select-Object -First 1 | Copy-Item -Destination "build\locodrive.exe"
       shell: powershell
 
     - name: Package Installer (Inno Setup)

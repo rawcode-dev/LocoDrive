@@ -11,7 +11,7 @@ OutputBaseFilename=LocoDrive-Setup
 PrivilegesRequired=lowest
 
 [Files]
-Source: "..\..\target\gluonfx\x86_64-windows\gvm\locodrive.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\build\locodrive.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\LocoDrive"; Filename: "{app}\locodrive.exe"

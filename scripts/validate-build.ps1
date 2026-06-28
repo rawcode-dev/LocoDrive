@@ -35,7 +35,7 @@ $ConfigJson = @"
 Set-Content -Path "$ConfigDir\config.json" -Value $ConfigJson
 
 Write-Host "Starting LocoDrive native binary: $($Binary.FullName)"
-$Process = Start-Process -FilePath $Binary.FullName -ArgumentList "-Dprism.order=sw" -NoNewWindow -PassThru -RedirectStandardOutput "stdout.log" -RedirectStandardError "stderr.log"
+$Process = Start-Process -FilePath $Binary.FullName -NoNewWindow -PassThru -RedirectStandardOutput "stdout.log" -RedirectStandardError "stderr.log"
 
 Write-Host "Waiting 10 seconds for server to initialize..."
 Start-Sleep -Seconds 10
