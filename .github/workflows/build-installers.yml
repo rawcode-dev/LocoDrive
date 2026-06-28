@@ -43,8 +43,21 @@ jobs:
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Compile Native Machine Code and Package Installer
-      run: mvn clean gluonfx:build gluonfx:package
+    - name: Compile Native Machine Code
+      run: mvn clean gluonfx:build
+
+    - name: Compress Binary with UPX (Linux/Windows)
+      if: runner.os != 'macOS'
+      uses: crazy-max/ghaction-upx@v3
+      with:
+        version: latest
+        files: |
+          target/gluonfx/*/gvm/locodrive
+          target/gluonfx/*/gvm/locodrive.exe
+        args: -9
+
+    - name: Package Installer
+      run: mvn gluonfx:package
       
     - name: Copy Installer to Dist
       run: |
