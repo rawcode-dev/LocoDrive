@@ -35,10 +35,19 @@ $ConfigJson = @"
 Set-Content -Path "$ConfigDir\config.json" -Value $ConfigJson
 
 Write-Host "Starting LocoDrive native binary: $($Binary.FullName)"
-$Process = Start-Process -FilePath $Binary.FullName -PassThru
+$Process = Start-Process -FilePath $Binary.FullName -ArgumentList "-Dprism.order=sw" -NoNewWindow -PassThru -RedirectStandardOutput "stdout.log" -RedirectStandardError "stderr.log"
 
-Write-Host "Waiting 5 seconds for server to initialize..."
-Start-Sleep -Seconds 5
+Write-Host "Waiting 10 seconds for server to initialize..."
+Start-Sleep -Seconds 10
+
+if ($Process.HasExited) {
+    Write-Host "Process crashed! Exit code: $($Process.ExitCode)"
+    Write-Host "--- STDOUT ---"
+    Get-Content stdout.log | Write-Host
+    Write-Host "--- STDERR ---"
+    Get-Content stderr.log | Write-Host
+    exit 1
+}
 
 Write-Host "Testing HTTP endpoint..."
 try {
@@ -48,6 +57,10 @@ try {
     exit 0
 } catch {
     Write-Error "❌ Validation failed! Server did not respond."
+    Write-Host "--- STDOUT ---"
+    Get-Content stdout.log | Write-Host
+    Write-Host "--- STDERR ---"
+    Get-Content stderr.log | Write-Host
     Stop-Process -Id $Process.Id -Force
     exit 1
 }
