@@ -27,12 +27,6 @@ jobs:
     - name: Compile Native Machine Code
       run: mvn clean gluonfx:build
 
-    - name: Compress Binary with UPX
-      uses: crazy-max/ghaction-upx@v3
-      with:
-        version: latest
-        files: target/gluonfx/**/*.exe
-        args: -9
 
     - name: Build Validation
       run: ./scripts/validate-build.ps1
