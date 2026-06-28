@@ -50,7 +50,10 @@ jobs:
     - name: Copy DEB to dist
       run: |
         mkdir -p dist
-        find target/gluonfx -type f -name "*.deb" -exec cp {} dist/ \;
+        DEB_FILE=$(find target/gluonfx -type f -name "*.deb" | head -n 1)
+        if [ -n "$DEB_FILE" ]; then
+            cp "$DEB_FILE" dist/LocoDrive-Linux.deb
+        fi
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
