@@ -37,16 +37,16 @@ jobs:
         SIZE=$(du -h "$BINARY" | cut -f1)
         echo "✅ Native binary found: $BINARY ($SIZE)"
 
-    - name: Package Installer (PKG)
-      run: mvn -B gluonfx:package
-
-    - name: Copy PKG to dist
+    - name: Package as ZIP (no code signing required)
       run: |
         mkdir -p dist
-        find target/gluonfx -type f \( -name "*.pkg" -o -name "*.dmg" \) -exec cp {} dist/ \;
+        BINARY=$(find target/gluonfx -type f -perm +111 ! -name "*.dylib" ! -name "*.o" ! -name "*.a" | head -n 1)
+        cp "$BINARY" dist/LocoDrive
+        chmod +x dist/LocoDrive
+        cd dist && zip LocoDrive-macOS.zip LocoDrive
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: LocoDrive-macOS-Installer
-        path: dist/*
+        path: dist/LocoDrive-macOS.zip

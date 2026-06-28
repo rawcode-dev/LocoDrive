@@ -6,9 +6,9 @@
 
 ## 📥 Download latest release
 
-- [🪟 **Download for Windows** (.exe)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/LocoDriveServer-1.0.0.exe)
-- [🐧 **Download for Linux** (.deb)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/locodriveserver_1.0.0-1_amd64.deb)
-- [🍎 **Download for macOS** (.pkg)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/LocoDriveServer-1.0.0.pkg)
+- [🪟 **Download for Windows** (.exe)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/LocoDrive-Setup.exe)
+- [🐧 **Download for Linux** (.deb)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/LocoDrive-1.0.0.deb)
+- [🍎 **Download for macOS** (.zip)](https://github.com/rawcode-dev/LocoDrive/releases/latest/download/LocoDrive-macOS.zip)
 
 ---
 
