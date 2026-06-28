@@ -46,14 +46,16 @@ jobs:
       run: |
         # Create a clean input directory to avoid packaging unnecessary files from target/
         mkdir jpackage-input
-        cp target/locodrive-1.0.0.jar jpackage-input/
+        cp target/locodrive-*.jar jpackage-input/
         
         jpackage --type ${{ matrix.jpackage-type }} \
-                 --name LocoDriveServer \
+                 --name LocoDrive \
                  --input jpackage-input/ \
                  --main-jar locodrive-1.0.0.jar \
                  --main-class com.locodrive.Launcher \
                  --app-version 1.0.0 \
+                 --runtime-image target/custom-jre \
+                 --java-options "-Xmx128M -XX:+UseSerialGC -XX:MaxRAM=256M" \
                  --java-options "-Dapple.awt.UIElement=false" \
                  --java-options "-Djavafx.macos.interop=true" \
                  --java-options "--add-opens=java.desktop/sun.awt=ALL-UNNAMED" \
@@ -65,7 +67,7 @@ jobs:
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: LocoDriveServer-${{ runner.os }}-Installer
+        name: LocoDrive-${{ runner.os }}-Installer
         path: dist/*.*
 
     - name: Publish to GitHub Release
