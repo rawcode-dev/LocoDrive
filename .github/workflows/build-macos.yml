@@ -1,0 +1,43 @@
+name: Build macOS Native
+
+on:
+  workflow_call:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup GraalVM via Gluon
+      uses: gluonhq/setup-graalvm@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        graalvm: '22.1.0.1-Final'
+        jdk: 'java17'
+
+    - name: Compile Native Machine Code
+      run: mvn clean gluonfx:build
+
+    - name: Build Validation
+      run: ./scripts/validate-build.sh
+      shell: bash
+
+    - name: Package Installer (PKG)
+      run: mvn gluonfx:package
+
+    - name: Copy PKG to dist
+      run: |
+        mkdir -p dist
+        find target/gluonfx -type f -name "*.pkg" -o -name "*.dmg" -exec cp {} dist/ \;
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: LocoDrive-macOS-Installer
+        path: dist/*

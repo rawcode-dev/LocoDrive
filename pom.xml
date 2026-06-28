@@ -102,6 +102,10 @@
                     <mainClass>com.locodrive.Launcher</mainClass>
                     <compilerArgs>
                         <arg>-Os</arg>
+                        <arg>--no-fallback</arg>
+                        <arg>--strip-debug</arg>
+                        <arg>--enable-http</arg>
+                        <arg>--enable-https</arg>
                     </compilerArgs>
                     <reflectionList>
                         <list>org.json.JSONObject</list>

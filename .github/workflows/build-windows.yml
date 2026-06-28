@@ -1,0 +1,48 @@
+name: Build Windows Native
+
+on:
+  workflow_call:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup GraalVM via Gluon
+      uses: gluonhq/setup-graalvm@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        graalvm: '22.1.0.1-Final'
+        jdk: 'java17'
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Compile Native Machine Code
+      run: mvn clean gluonfx:build
+
+    - name: Compress Binary with UPX
+      uses: crazy-max/ghaction-upx@v3
+      with:
+        version: latest
+        files: target/gluonfx/x86_64-windows/gvm/locodrive.exe
+        args: -9
+
+    - name: Build Validation
+      run: ./scripts/validate-build.ps1
+      shell: powershell
+
+    - name: Package Installer (Inno Setup)
+      run: iscc installer/windows/installer.iss
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: LocoDrive-Windows-Installer
+        path: dist/LocoDrive-Setup.exe
