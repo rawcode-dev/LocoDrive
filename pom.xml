@@ -60,13 +60,21 @@
                     <jpackageAppVersion>1.0.0</jpackageAppVersion>
                     <jpackageType>installer</jpackageType>
                     <options>
-                        <!-- macOS requires -XstartOnFirstThread for AWT+JavaFX interop -->
+                        <!-- Memory optimizations to limit RAM usage -->
+                        <option>-Xmx128M</option>
+                        <option>-XX:+UseSerialGC</option>
+                        <option>-XX:MaxRAM=256M</option>
+                        <!-- macOS specific -->
                         <option>-Dapple.awt.UIElement=false</option>
                         <option>-Djavafx.macos.interop=true</option>
                         <option>--add-opens=java.desktop/sun.awt=ALL-UNNAMED</option>
                         <option>--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</option>
                         <option>--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</option>
                     </options>
+                    <jpackageOptions>
+                        <jpackageOption>--runtime-image</jpackageOption>
+                        <jpackageOption>${project.build.directory}/custom-jre</jpackageOption>
+                    </jpackageOptions>
                 </configuration>
             </plugin>
 
@@ -84,6 +92,35 @@
                 </configuration>
             </plugin>
 
+
+            <!-- JLink plugin to create a stripped down custom JRE -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>create-custom-jre</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${java.home}/bin/jlink</executable>
+                            <arguments>
+                                <argument>--add-modules</argument>
+                                <argument>java.base,java.desktop,java.scripting,jdk.httpserver,jdk.jfr,jdk.unsupported,java.xml</argument>
+                                <argument>--strip-debug</argument>
+                                <argument>--no-man-pages</argument>
+                                <argument>--no-header-files</argument>
+                                <argument>--compress=zip-9</argument>
+                                <argument>--output</argument>
+                                <argument>${project.build.directory}/custom-jre</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <!-- Shade plugin — creates a fat JAR for development testing -->
             <plugin>
